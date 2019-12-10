@@ -2,8 +2,17 @@ import numpy as np
 
 
 class EpisodeEditor:
-    def __init__(self, alter_episode_mode, pre_trained_reward, image_cache, joints_dimension=4, pose_dimension=2,
-                 status_dimension=3, image_dimension=(55, 111), allowed_batch=None):
+    def __init__(
+        self,
+        alter_episode_mode,
+        pre_trained_reward,
+        image_cache,
+        joints_dimension=4,
+        pose_dimension=2,
+        status_dimension=3,
+        image_dimension=(55, 111),
+        allowed_batch=None,
+    ):
         self.alter_episode_mode = alter_episode_mode
         self.pre_trained_reward = pre_trained_reward
         self.image_cache = image_cache
@@ -21,18 +30,28 @@ class EpisodeEditor:
         self.images_buffer = None
 
     def _clear_buffers(self):
-        self.current_joints_buffer = np.zeros((0, self.joints_dimension), dtype=np.float32)
+        self.current_joints_buffer = np.zeros(
+            (0, self.joints_dimension), dtype=np.float32
+        )
         self.goal_joints_buffer = np.zeros((0, self.joints_dimension), dtype=np.float32)
         self.actions_buffer = np.zeros((0, self.joints_dimension), dtype=np.float32)
         self.goal_poses_buffer = np.zeros((0, self.pose_dimension), dtype=np.float32)
         if self.alter_episode_mode == 2:
             self.status_buffer = np.zeros((0, self.status_dimension), dtype=np.float32)
         if self.image_cache is not None:
-            self.images_buffer = np.zeros((0, self.image_dimension[0], self.image_dimension[1]), dtype=np.int32)
+            self.images_buffer = np.zeros(
+                (0, self.image_dimension[0], self.image_dimension[1]), dtype=np.int32
+            )
 
-    def _append_to_buffers(self, current_joints, goal_joints, actions, goal_poses, status, images):
-        self.current_joints_buffer = np.append(self.current_joints_buffer, current_joints, axis=0)
-        self.goal_joints_buffer = np.append(self.goal_joints_buffer, goal_joints, axis=0)
+    def _append_to_buffers(
+        self, current_joints, goal_joints, actions, goal_poses, status, images
+    ):
+        self.current_joints_buffer = np.append(
+            self.current_joints_buffer, current_joints, axis=0
+        )
+        self.goal_joints_buffer = np.append(
+            self.goal_joints_buffer, goal_joints, axis=0
+        )
         self.actions_buffer = np.append(self.actions_buffer, actions, axis=0)
         self.goal_poses_buffer = np.append(self.goal_poses_buffer, goal_poses, axis=0)
         if self.status_buffer is not None:
@@ -44,8 +63,13 @@ class EpisodeEditor:
         if self.allowed_batch is None:
             # predict for all the episodes in the same time
             return self.pre_trained_reward.make_prediction(
-                sess, self.current_joints_buffer, self.goal_joints_buffer, self.actions_buffer, self.goal_poses_buffer,
-                self.status_buffer, images=self.images_buffer
+                sess,
+                self.current_joints_buffer,
+                self.goal_joints_buffer,
+                self.actions_buffer,
+                self.goal_poses_buffer,
+                self.status_buffer,
+                images=self.images_buffer,
             )
         current_index = 0
         fake_rewards = np.zeros((0, 1), dtype=np.float32)
@@ -53,16 +77,26 @@ class EpisodeEditor:
         while current_index < len(self.current_joints_buffer):
             current_prediction_result = self.pre_trained_reward.make_prediction(
                 sess,
-                self.current_joints_buffer[current_index: current_index + self.allowed_batch],
-                self.goal_joints_buffer[current_index: current_index + self.allowed_batch],
-                self.actions_buffer[current_index: current_index + self.allowed_batch],
-                self.goal_poses_buffer[current_index: current_index + self.allowed_batch],
-                self.status_buffer[current_index: current_index + self.allowed_batch],
-                images=self.images_buffer[current_index: current_index + self.allowed_batch]
+                self.current_joints_buffer[
+                    current_index : current_index + self.allowed_batch
+                ],
+                self.goal_joints_buffer[
+                    current_index : current_index + self.allowed_batch
+                ],
+                self.actions_buffer[current_index : current_index + self.allowed_batch],
+                self.goal_poses_buffer[
+                    current_index : current_index + self.allowed_batch
+                ],
+                self.status_buffer[current_index : current_index + self.allowed_batch],
+                images=self.images_buffer[
+                    current_index : current_index + self.allowed_batch
+                ],
             )
             current_index += self.allowed_batch
             fake_rewards = np.append(fake_rewards, current_prediction_result[0], axis=0)
-            fake_status_prob = np.append(fake_status_prob, current_prediction_result[1], axis=0)
+            fake_status_prob = np.append(
+                fake_status_prob, current_prediction_result[1], axis=0
+            )
         return fake_rewards, fake_status_prob
 
     def process_episodes(self, episodes, sess):
@@ -77,7 +111,15 @@ class EpisodeEditor:
             # save the start index for every episode
             episode_start_indices.append(len(self.current_joints_buffer))
             # add data to buffers
-            status, states, actions, rewards, goal_pose, goal_joints, workspace_id = episode_agent_trajectory
+            (
+                status,
+                states,
+                actions,
+                rewards,
+                goal_pose,
+                goal_joints,
+                workspace_id,
+            ) = episode_agent_trajectory
             current_joints = [state[0] for state in states[:-1]]
             one_hot_status = None
             if self.alter_episode_mode == 2:
@@ -88,21 +130,49 @@ class EpisodeEditor:
             if self.images_buffer is not None:
                 image = self.image_cache.get_image(workspace_id)
                 images = [image] * len(actions)
-            self._append_to_buffers(current_joints, [goal_joints] * len(actions), actions, [goal_pose] * len(actions),
-                                    one_hot_status, images)
+            self._append_to_buffers(
+                current_joints,
+                [goal_joints] * len(actions),
+                actions,
+                [goal_pose] * len(actions),
+                one_hot_status,
+                images,
+            )
         # get the results by batch:
         fake_rewards, fake_status_prob = self._predict_buffers_by_batches(sess)
 
         # partition the results by episode
         resulting_episodes = []
-        for episode_start_index, episode_agent_trajectory in zip(episode_start_indices, episodes):
-            status, states, actions, rewards, goal_pose, goal_joints, workspace_id = episode_agent_trajectory
+        for episode_start_index, episode_agent_trajectory in zip(
+            episode_start_indices, episodes
+        ):
+            (
+                status,
+                states,
+                actions,
+                rewards,
+                goal_pose,
+                goal_joints,
+                workspace_id,
+            ) = episode_agent_trajectory
             # get the relevant rewards
-            relevant_rewards = fake_rewards[episode_start_index: episode_start_index+len(rewards)]
+            relevant_rewards = fake_rewards[
+                episode_start_index : episode_start_index + len(rewards)
+            ]
             if self.alter_episode_mode == 2:
-                altered_result = status, states, actions, relevant_rewards, goal_pose, goal_joints, workspace_id
+                altered_result = (
+                    status,
+                    states,
+                    actions,
+                    relevant_rewards,
+                    goal_pose,
+                    goal_joints,
+                    workspace_id,
+                )
             elif self.alter_episode_mode == 1:
-                relevant_fake_status = fake_status_prob[episode_start_index: episode_start_index+len(rewards)]
+                relevant_fake_status = fake_status_prob[
+                    episode_start_index : episode_start_index + len(rewards)
+                ]
                 fake_status = np.argmax(np.array(relevant_fake_status), axis=1)
                 fake_status += 1
                 # iterate over approximated episode and see if truncation is needed
@@ -113,11 +183,20 @@ class EpisodeEditor:
                 # return the status of the last transition, truncated list of states and actions, the fake rewards (also
                 # truncated) and the goal parameters as-is.
                 altered_status = fake_status[truncation_index]
-                altered_states = states[:truncation_index + 2]
-                altered_actions = actions[:truncation_index + 1]
-                altered_rewards = [r[0] for r in relevant_rewards[:truncation_index + 1]]
-                altered_result = altered_status, altered_states, altered_actions, altered_rewards, goal_pose, \
-                                 goal_joints, workspace_id
+                altered_states = states[: truncation_index + 2]
+                altered_actions = actions[: truncation_index + 1]
+                altered_rewards = [
+                    r[0] for r in relevant_rewards[: truncation_index + 1]
+                ]
+                altered_result = (
+                    altered_status,
+                    altered_states,
+                    altered_actions,
+                    altered_rewards,
+                    goal_pose,
+                    goal_joints,
+                    workspace_id,
+                )
             else:
                 assert False
             resulting_episodes.append(altered_result)

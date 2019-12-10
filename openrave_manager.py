@@ -12,13 +12,13 @@ class OpenraveManager(object):
     def __init__(self, segment_validity_step, potential_points):
         # env_path = os.path.abspath(
         #     os.path.expanduser('~/ModelBasedDDPG/config/widowx_env.xml'))
-        env_path = os.path.join(os.getcwd(), 'data', 'config', 'widowx_env.xml')
+        env_path = os.path.join(os.getcwd(), "data", "config", "widowx_env.xml")
         self.env = Environment()
         self.env.StopSimulation()
         self.env.Load(env_path)  # load a simple scene
-        self.robot = self.env.GetRobots()[0] # load the robot
+        self.robot = self.env.GetRobots()[0]  # load the robot
         self.links_names = [l.GetName() for l in self.robot.GetLinks()]
-        self.robot.SetActiveDOFs(range(1, 5)) # make the first joint invalid
+        self.robot.SetActiveDOFs(range(1, 5))  # make the first joint invalid
         # set the color
         color = np.array([33, 213, 237])
         for link in self.robot.GetLinks():
@@ -33,25 +33,50 @@ class OpenraveManager(object):
         self.loaded_params = None
 
     def load_params(self, workspace_params, params_path):
-        if self.loaded_params_path is not None and self.loaded_params_path == params_path:
+        if (
+            self.loaded_params_path is not None
+            and self.loaded_params_path == params_path
+        ):
             # already loaded
             return
         with self.env:
             for i in range(workspace_params.number_of_obstacles):
-                body = RaveCreateKinBody(self.env, '')
-                body.SetName('box{}'.format(i))
-                body.InitFromBoxes(np.array([[0, 0, 0, workspace_params.sides_x[i], 0.01, workspace_params.sides_z[i]]]),
-                                   True)
+                body = RaveCreateKinBody(self.env, "")
+                body.SetName("box{}".format(i))
+                body.InitFromBoxes(
+                    np.array(
+                        [
+                            [
+                                0,
+                                0,
+                                0,
+                                workspace_params.sides_x[i],
+                                0.01,
+                                workspace_params.sides_z[i],
+                            ]
+                        ]
+                    ),
+                    True,
+                )
                 self.env.Add(body, True)
 
                 transformation_matrix = np.eye(4)
-                translation = np.array([
-                    workspace_params.centers_position_x[i], 0.0, workspace_params.centers_position_z[i]])
+                translation = np.array(
+                    [
+                        workspace_params.centers_position_x[i],
+                        0.0,
+                        workspace_params.centers_position_z[i],
+                    ]
+                )
 
                 theta = workspace_params.y_axis_rotation[i]
-                rotation_matrix = np.array([
-                    [np.cos(theta), 0.0, np.sin(theta)], [0.0, 1.0, 0.0], [-np.sin(theta), 0.0, np.cos(theta)]
-                ])
+                rotation_matrix = np.array(
+                    [
+                        [np.cos(theta), 0.0, np.sin(theta)],
+                        [0.0, 1.0, 0.0],
+                        [-np.sin(theta), 0.0, np.cos(theta)],
+                    ]
+                )
                 transformation_matrix[:3, -1] = translation
                 transformation_matrix[:3, :3] = rotation_matrix
                 body.SetTransform(transformation_matrix)
@@ -75,7 +100,9 @@ class OpenraveManager(object):
         else:
             if loaded != params_path:
                 self.remove_objects()
-                self.load_params(WorkspaceParams.load_from_file(params_path), params_path)
+                self.load_params(
+                    WorkspaceParams.load_from_file(params_path), params_path
+                )
                 return True
             return False
 
@@ -89,7 +116,10 @@ class OpenraveManager(object):
         joint_bounds = self.get_joint_bounds()
         result = []
         for i in range(self.get_number_of_joints()):
-            if fixed_positions_dictionary is not None and i in fixed_positions_dictionary:
+            if (
+                fixed_positions_dictionary is not None
+                and i in fixed_positions_dictionary
+            ):
                 result.append(fixed_positions_dictionary[i])
             else:
                 result.append(random.uniform(joint_bounds[0][i], joint_bounds[1][i]))
@@ -120,19 +150,28 @@ class OpenraveManager(object):
             if not self.is_valid(start_joints) or not self.is_valid(goal_joints):
                 return None
             self.robot.SetDOFValues(start_joints, [0, 1, 2, 3, 4])
-            manipprob = interfaces.BaseManipulation(self.robot)  # create the interface for basic manipulation programs
+            manipprob = interfaces.BaseManipulation(
+                self.robot
+            )  # create the interface for basic manipulation programs
             try:
                 items_per_trajectory_step = 10
                 active_joints = self.robot.GetActiveDOF()
                 # call motion planner with goal joint angles
-                traj = manipprob.MoveActiveJoints(goal=goal_joints[1:], execute=False, outputtrajobj=True, maxtries=1,
-                                                  maxiter=max_planner_iterations)
+                traj = manipprob.MoveActiveJoints(
+                    goal=goal_joints[1:],
+                    execute=False,
+                    outputtrajobj=True,
+                    maxtries=1,
+                    maxiter=max_planner_iterations,
+                )
                 # found plan, if not an exception is thrown and caught below
                 traj = list(traj.GetWaypoints(0, traj.GetNumWaypoints()))
                 assert len(traj) % items_per_trajectory_step == 0
                 # take only the joints values and add the 0 joint.
-                traj = [[0.0] + traj[x:x + items_per_trajectory_step][:active_joints] for x in
-                        xrange(0, len(traj), items_per_trajectory_step)]
+                traj = [
+                    [0.0] + traj[x : x + items_per_trajectory_step][:active_joints]
+                    for x in xrange(0, len(traj), items_per_trajectory_step)
+                ]
                 # assert validity
                 if self.get_last_valid_in_trajectory(traj) != traj[-1]:
                     return None
@@ -174,20 +213,24 @@ class OpenraveManager(object):
             return [tuple(s) for s in steps]
 
     def get_last_valid_in_trajectory(self, trajectory):
-        for i in range(len(trajectory)-1):
-            if not self.check_segment_validity(trajectory[i], trajectory[i+1]):
+        for i in range(len(trajectory) - 1):
+            if not self.check_segment_validity(trajectory[i], trajectory[i + 1]):
                 return trajectory[i]
         return trajectory[-1]
 
     def get_initialized_viewer(self):
         if self.env.GetViewer() is None:
-            self.env.SetViewer('qtcoin')
+            self.env.SetViewer("qtcoin")
         # set camera
         camera_transform = np.eye(4)
         theta = -np.pi / 2
-        rotation_matrix = np.array([
-            [1.0, 0.0, 0.0], [0.0, np.cos(theta), -np.sin(theta)], [0.0, np.sin(theta), np.cos(theta)]
-        ])
+        rotation_matrix = np.array(
+            [
+                [1.0, 0.0, 0.0],
+                [0.0, np.cos(theta), -np.sin(theta)],
+                [0.0, np.sin(theta), np.cos(theta)],
+            ]
+        )
         camera_transform[:3, :3] = rotation_matrix
         camera_transform[:3, 3] = np.array([0.0, -1.0, 0.25])
         time.sleep(1)
@@ -197,11 +240,15 @@ class OpenraveManager(object):
 
     @staticmethod
     def get_manager_for_workspace(workspace_id, config):
-        directory = os.path.abspath(os.path.expanduser(config['data']['directory']))
+        directory = os.path.abspath(os.path.expanduser(config["data"]["directory"]))
         workspace_dir = os.path.join(directory, workspace_id)
         potential_points = PotentialPoint.from_config(config)
-        openrave_manager = OpenraveManager(config['data']['joint_segment_validity_step'], potential_points)
-        workspace_params = WorkspaceParams.load_from_file(data_filepaths.get_workspace_params_path(workspace_dir))
+        openrave_manager = OpenraveManager(
+            config["data"]["joint_segment_validity_step"], potential_points
+        )
+        workspace_params = WorkspaceParams.load_from_file(
+            data_filepaths.get_workspace_params_path(workspace_dir)
+        )
         openrave_manager.load_params(workspace_params)
         return openrave_manager, workspace_dir
 
@@ -210,7 +257,8 @@ class OpenraveManager(object):
         poses = self.robot.GetLinkTransformations()
         result = {
             link_name: tuple(poses[i][[0, 2], -1])
-            for i, link_name in enumerate(self.links_names) if link_name in self.links_names
+            for i, link_name in enumerate(self.links_names)
+            if link_name in self.links_names
         }
         return result
 
@@ -221,7 +269,10 @@ class OpenraveManager(object):
     def get_potential_points_poses(self, joints, post_process=True):
         self.robot.SetDOFValues(joints, [0, 1, 2, 3, 4])
         link_transform = self.robot.GetLinkTransformations()
-        result = {p.tuple: np.matmul(link_transform[p.link], p.coordinate) for p in self.potential_points}
+        result = {
+            p.tuple: np.matmul(link_transform[p.link], p.coordinate)
+            for p in self.potential_points
+        }
         if post_process:
             result = {k: (result[k][0], result[k][2]) for k in result}
         return result
@@ -232,7 +283,7 @@ class OpenraveManager(object):
 
     @staticmethod
     def _post_process_jacobian(j, is_numeric=False):
-        return j[[0, 2], 1 if is_numeric else 0:].transpose()
+        return j[[0, 2], 1 if is_numeric else 0 :].transpose()
 
     def get_links_jacobians(self, joints, modeling_links=None):
         if modeling_links is None:
@@ -240,16 +291,23 @@ class OpenraveManager(object):
         self.robot.SetDOFValues(joints, [0, 1, 2, 3, 4])
         poses = self.robot.GetLinkTransformations()
         return {
-            link_name: self._post_process_jacobian(self.robot.CalculateActiveJacobian(i, poses[i][:3, 3]))
-            for i, link_name in enumerate(self.links_names) if link_name in modeling_links
+            link_name: self._post_process_jacobian(
+                self.robot.CalculateActiveJacobian(i, poses[i][:3, 3])
+            )
+            for i, link_name in enumerate(self.links_names)
+            if link_name in modeling_links
         }
 
     def get_potential_points_jacobians(self, joints):
-        potential_points_poses = self.get_potential_points_poses(joints, post_process=False)
+        potential_points_poses = self.get_potential_points_poses(
+            joints, post_process=False
+        )
         self.robot.SetDOFValues(joints, [0, 1, 2, 3, 4])
         return {
             p.tuple: self._post_process_jacobian(
-                self.robot.CalculateActiveJacobian(p.link, potential_points_poses[p.tuple])
+                self.robot.CalculateActiveJacobian(
+                    p.link, potential_points_poses[p.tuple]
+                )
             )
             for p in self.potential_points
         }
@@ -355,22 +413,38 @@ if __name__ == "__main__":
     joints0 = [0.0] * 5
     res1 = m.get_potential_points_poses(joints0)
     res2 = m.get_links_poses(joints0)
-    print res1[potential_points[0].tuple] == res2[m.links_names[potential_points[0].link]]
-    print res1[potential_points[1].tuple] == res2[m.links_names[potential_points[1].link]]
+    print res1[potential_points[0].tuple] == res2[
+        m.links_names[potential_points[0].link]
+    ]
+    print res1[potential_points[1].tuple] == res2[
+        m.links_names[potential_points[1].link]
+    ]
 
     res3 = m.get_potential_points_jacobians(joints0)
     res4 = m.get_links_jacobians(joints0)
-    print res3[potential_points[0].tuple] == res4[m.links_names[potential_points[0].link]]
-    print res3[potential_points[1].tuple] == res4[m.links_names[potential_points[1].link]]
+    print res3[potential_points[0].tuple] == res4[
+        m.links_names[potential_points[0].link]
+    ]
+    print res3[potential_points[1].tuple] == res4[
+        m.links_names[potential_points[1].link]
+    ]
 
     joints0 = [0.0] * 5
-    joints0[2] = np.pi/4
+    joints0[2] = np.pi / 4
     res1 = m.get_potential_points_poses(joints0)
     res2 = m.get_links_poses(joints0)
-    print res1[potential_points[0].tuple] == res2[m.links_names[potential_points[0].link]]
-    print res1[potential_points[1].tuple] == res2[m.links_names[potential_points[1].link]]
+    print res1[potential_points[0].tuple] == res2[
+        m.links_names[potential_points[0].link]
+    ]
+    print res1[potential_points[1].tuple] == res2[
+        m.links_names[potential_points[1].link]
+    ]
 
     res3 = m.get_potential_points_jacobians(joints0)
     res4 = m.get_links_jacobians(joints0)
-    print res3[potential_points[0].tuple] == res4[m.links_names[potential_points[0].link]]
-    print res3[potential_points[1].tuple] == res4[m.links_names[potential_points[1].link]]
+    print res3[potential_points[0].tuple] == res4[
+        m.links_names[potential_points[0].link]
+    ]
+    print res3[potential_points[1].tuple] == res4[
+        m.links_names[potential_points[1].link]
+    ]

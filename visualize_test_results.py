@@ -86,39 +86,53 @@ groups_to_test_results_files = {
     #     '/home/tom/paper_results/hard_scenario/trajectories/ddpg_her2/test_results.test_results_pkl',
     #     '/home/tom/paper_results/hard_scenario/trajectories/ddpg_her3/test_results.test_results_pkl',
     # ],
-    'DDPG-MP (our method)': [
-        '/home/tom/paper_results/hard_scenario/trajectories/ddpgmp1/test_results.test_results_pkl',
-        '/home/tom/paper_results/hard_scenario/trajectories/ddpgmp2/test_results.test_results_pkl',
-        '/home/tom/paper_results/hard_scenario/trajectories/ddpgmp3/test_results.test_results_pkl',
+    "DDPG-MP (our method)": [
+        "/home/tom/paper_results/hard_scenario/trajectories/ddpgmp1/test_results.test_results_pkl",
+        "/home/tom/paper_results/hard_scenario/trajectories/ddpgmp2/test_results.test_results_pkl",
+        "/home/tom/paper_results/hard_scenario/trajectories/ddpgmp3/test_results.test_results_pkl",
     ],
-    'DDPG-MP (no expert)': [
-        '/home/tom/paper_results/hard_scenario/trajectories/ddpgmp_no_score1/test_results.test_results_pkl',
-        '/home/tom/paper_results/hard_scenario/trajectories/ddpgmp_no_score2/test_results.test_results_pkl',
-        '/home/tom/paper_results/hard_scenario/trajectories/ddpgmp_no_score3/test_results.test_results_pkl',
+    "DDPG-MP (no expert)": [
+        "/home/tom/paper_results/hard_scenario/trajectories/ddpgmp_no_score1/test_results.test_results_pkl",
+        "/home/tom/paper_results/hard_scenario/trajectories/ddpgmp_no_score2/test_results.test_results_pkl",
+        "/home/tom/paper_results/hard_scenario/trajectories/ddpgmp_no_score3/test_results.test_results_pkl",
     ],
-    'DDPG-MP+HER (no expert)': [
-        '/home/tom/paper_results/hard_scenario/trajectories/ddpgmp_no_score_her_k1_1/test_results.test_results_pkl',
-        '/home/tom/paper_results/hard_scenario/trajectories/ddpgmp_no_score_her_k1_2/test_results.test_results_pkl',
-        '/home/tom/paper_results/hard_scenario/trajectories/ddpgmp_no_score_her_k1_3/test_results.test_results_pkl',
+    "DDPG-MP+HER (no expert)": [
+        "/home/tom/paper_results/hard_scenario/trajectories/ddpgmp_no_score_her_k1_1/test_results.test_results_pkl",
+        "/home/tom/paper_results/hard_scenario/trajectories/ddpgmp_no_score_her_k1_2/test_results.test_results_pkl",
+        "/home/tom/paper_results/hard_scenario/trajectories/ddpgmp_no_score_her_k1_3/test_results.test_results_pkl",
     ],
 }
-title = 'Hard scenario - comparing exploration strategies'
+title = "Hard scenario - comparing exploration strategies"
 
 
-colors = ['blue', 'green', 'red', 'yellow', 'teal']
+colors = ["blue", "green", "red", "yellow", "teal"]
 
 
 def load_file_as_series(test_results_file):
-    with bz2.BZ2File(test_results_file, 'r') as compressed_file:
+    with bz2.BZ2File(test_results_file, "r") as compressed_file:
         test_results = pickle.load(compressed_file)
     episodes_res = []
     success_rate_res = []
     for t in test_results:
-        global_step, episodes, test_successful_episodes, test_collision_episodes,test_max_len_episodes, test_mean_reward = t
+        (
+            global_step,
+            episodes,
+            test_successful_episodes,
+            test_collision_episodes,
+            test_max_len_episodes,
+            test_mean_reward,
+        ) = t
         if global_step == -1:
             continue
         episodes_res.append(episodes)
-        success_rate_res.append(float(test_successful_episodes) / (test_successful_episodes + test_collision_episodes + test_max_len_episodes))
+        success_rate_res.append(
+            float(test_successful_episodes)
+            / (
+                test_successful_episodes
+                + test_collision_episodes
+                + test_max_len_episodes
+            )
+        )
     return episodes_res, success_rate_res
 
 
@@ -177,7 +191,7 @@ for i, label in enumerate(groups_to_test_results_files.keys()):
     group_axis, group_data = load_several_files(groups_to_test_results_files[label])
     plot_group(group_axis, group_data, ax, label, colors[i])
 ax.set_title(title)
-ax.legend(loc='lower right')
-ax.set_xlabel('train episodes')
-ax.set_ylabel('success rate')
+ax.legend(loc="lower right")
+ax.set_xlabel("train episodes")
+ax.set_ylabel("success rate")
 plt.show()

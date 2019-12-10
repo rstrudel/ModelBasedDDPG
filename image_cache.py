@@ -23,21 +23,23 @@ class ImageCache:
         source_dir = os.path.expanduser(params_directory)
         for dirpath, dirnames, filenames in os.walk(source_dir):
             for filename in filenames:
-                if not filename.endswith('.pkl'):
+                if not filename.endswith(".pkl"):
                     continue
                 full_file_path = os.path.join(source_dir, filename)
                 params = WorkspaceParams.load_from_file(full_file_path)
                 np_array = None
                 if create_images:
-                    image_filename = filename.replace('.pkl', '.image_pkl')
+                    image_filename = filename.replace(".pkl", ".image_pkl")
                     full_image_file_path = os.path.join(source_dir, image_filename)
                     if os.path.isfile(full_image_file_path):
-                        np_array = pickle.load(open(full_image_file_path, 'r'))
+                        np_array = pickle.load(open(full_image_file_path, "r"))
                     else:
                         np_array = self._get_image_as_numpy(params)
-                        pickle.dump(np_array, open(full_image_file_path, 'w'))
+                        pickle.dump(np_array, open(full_image_file_path, "w"))
 
-                self.items[filename] = ImageCacheItem(filename, full_file_path, params, np_array)
+                self.items[filename] = ImageCacheItem(
+                    filename, full_file_path, params, np_array
+                )
 
     def get_image(self, workspace_id):
         assert self._create_images
@@ -60,10 +62,10 @@ class ImageCache:
 
     @staticmethod
     def _remove_transparency(im, bg_colour=(255, 255, 255)):
-        if im.mode in ('RGBA', 'LA') or (im.mode == 'P' and 'transparency' in im.info):
+        if im.mode in ("RGBA", "LA") or (im.mode == "P" and "transparency" in im.info):
 
             # Need to convert to RGBA if LA format due to a bug in PIL
-            alpha = im.convert('RGBA').split()[-1]
+            alpha = im.convert("RGBA").split()[-1]
 
             # Create a new background image of our matt color.
             # Must be RGBA because paste requires both images have the same format
@@ -79,7 +81,7 @@ class ImageCache:
     def _get_image_as_numpy(params):
         f = params.print_image()
         im = ImageCache._figure_to_image(f)
-        im = ImageCache._remove_transparency(im).convert('L')
+        im = ImageCache._remove_transparency(im).convert("L")
         im = im.crop((73, 108, 517, 330))
         width = im.width / 4
         height = im.height / 4
@@ -89,6 +91,6 @@ class ImageCache:
         return res
 
 
-if __name__ == '__main__':
-    path = '~/ModelBasedDDPG/scenario_params/vision'
+if __name__ == "__main__":
+    path = "~/ModelBasedDDPG/scenario_params/vision"
     ImageCache(path, True)

@@ -8,8 +8,17 @@ from openrave_trajectory_generator import OpenraveTrajectoryGenerator
 
 
 class CollectorProcess(multiprocessing.Process):
-    def __init__(self, config, queued_data_points, result_queue, collector_specific_queue, params_file=None,
-                 query_parameters_queue=None, init_rl_interface=False, init_trajectory_collector=False):
+    def __init__(
+        self,
+        config,
+        queued_data_points,
+        result_queue,
+        collector_specific_queue,
+        params_file=None,
+        query_parameters_queue=None,
+        init_rl_interface=False,
+        init_trajectory_collector=False,
+    ):
         multiprocessing.Process.__init__(self)
         self.result_queue = result_queue
         self.collector_specific_queue = collector_specific_queue
@@ -29,7 +38,9 @@ class CollectorProcess(multiprocessing.Process):
     def _run_main_loop(self):
         while True:
             try:
-                next_collector_specific_task = self.collector_specific_queue.get(block=True, timeout=0.001)
+                next_collector_specific_task = self.collector_specific_queue.get(
+                    block=True, timeout=0.001
+                )
                 task_type = next_collector_specific_task[0]
                 if task_type == 1:
                     # need to terminate
@@ -42,7 +53,9 @@ class CollectorProcess(multiprocessing.Process):
                     self.result_queue.put(self._get_tuple())
                 else:
                     try:
-                        query_parameters = self.query_parameters_queue.get(block=True, timeout=0.001)
+                        query_parameters = self.query_parameters_queue.get(
+                            block=True, timeout=0.001
+                        )
                         self.result_queue.put(self._get_tuple(query_parameters))
                     except Queue.Empty:
                         pass
@@ -50,25 +63,33 @@ class CollectorProcess(multiprocessing.Process):
 
     def run(self):
         if self.init_trajectory_collector:
-            self.openrave_trajectory_generator = OpenraveTrajectoryGenerator(self.config)
+            self.openrave_trajectory_generator = OpenraveTrajectoryGenerator(
+                self.config
+            )
         if self.init_rl_interface:
             self.openrave_interface = OpenraveRLInterface(self.config)
         if self.params_file is not None:
             if self.init_trajectory_collector:
-                self.openrave_trajectory_generator.openrave_manager.set_params(self.params_file)
+                self.openrave_trajectory_generator.openrave_manager.set_params(
+                    self.params_file
+                )
             if self.init_rl_interface:
                 self.openrave_interface.openrave_manager.set_params(self.params_file)
         self._run_main_loop()
 
 
 class DataCollector:
-    def __init__(self, config, number_of_threads, params_file=None, query_parameters=None):
+    def __init__(
+        self, config, number_of_threads, params_file=None, query_parameters=None
+    ):
         self.number_of_threads = number_of_threads
         self.results_queue = multiprocessing.Queue()
         self.query_parameters_queue = None
         if query_parameters is not None:
             # put all the query parameters in the designated queue
-            self.query_parameters_queue = multiprocessing.Queue(maxsize=len(query_parameters))
+            self.query_parameters_queue = multiprocessing.Queue(
+                maxsize=len(query_parameters)
+            )
             for t in query_parameters:
                 self.query_parameters_queue.put(t, True)
         self.collector_specific_queues = [
@@ -78,7 +99,10 @@ class DataCollector:
         queue_size = self._get_queue_size(number_of_threads)
         self.collectors = [
             self._get_collector(
-                copy.deepcopy(config), queue_size, self.collector_specific_queues[i], params_file
+                copy.deepcopy(config),
+                queue_size,
+                self.collector_specific_queues[i],
+                params_file,
             )
             for i in range(self.number_of_threads)
         ]
@@ -89,7 +113,9 @@ class DataCollector:
     def _get_queue_size(self, number_of_threads):
         pass
 
-    def _get_collector(self, config, queued_data_points, collector_specific_queue, params_file=None):
+    def _get_collector(
+        self, config, queued_data_points, collector_specific_queue, params_file=None
+    ):
         pass
 
     def generate_samples(self, number_of_samples):
@@ -101,7 +127,7 @@ class DataCollector:
         return result_buffer
 
     def end(self):
-        message = (1, )
+        message = (1,)
         self._post_private_message(message)
         time.sleep(10)
         for c in self.collectors:

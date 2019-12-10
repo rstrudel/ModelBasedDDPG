@@ -19,7 +19,7 @@ class WorkspaceParams:
         self.rays = []
 
     def save(self, file_path):
-        pickle.dump(self, open(file_path, 'w'))
+        pickle.dump(self, open(file_path, "w"))
 
     @staticmethod
     def load_from_file(file_path):
@@ -34,46 +34,63 @@ class WorkspaceParams:
     @staticmethod
     def _get_box_polygon(center_x, center_z, side_x, side_z, y_rotation):
         points = [
-            (center_x - side_x / 2.0, center_z + side_z / 2.0 - 0/125),
-            (center_x + side_x / 2.0, center_z + side_z / 2.0 - 0/125),
-            (center_x + side_x / 2.0, center_z - side_z / 2.0 - 0/125),
-            (center_x - side_x / 2.0, center_z - side_z / 2.0 - 0/125),
+            (center_x - side_x / 2.0, center_z + side_z / 2.0 - 0 / 125),
+            (center_x + side_x / 2.0, center_z + side_z / 2.0 - 0 / 125),
+            (center_x + side_x / 2.0, center_z - side_z / 2.0 - 0 / 125),
+            (center_x - side_x / 2.0, center_z - side_z / 2.0 - 0 / 125),
         ]
         box = Polygon(points)
-        box = rotate(geom=box, angle=-y_rotation, origin='center', use_radians=True)
+        box = rotate(geom=box, angle=-y_rotation, origin="center", use_radians=True)
         return box
 
-    def print_image(self, trajectory=None, reference_trajectory=None, starting_pose=None, trajectory_end_pose=None,
-                    reference_end_pose=None):
+    def print_image(
+        self,
+        trajectory=None,
+        reference_trajectory=None,
+        starting_pose=None,
+        trajectory_end_pose=None,
+        reference_end_pose=None,
+    ):
         fig = pyplot.figure(1, dpi=90)
         ax = fig.add_subplot(111)
 
         # plot obstacles
         for i in range(self.number_of_obstacles):
-            rotated_box = WorkspaceParams._get_box_polygon(self.centers_position_x[i], self.centers_position_z[i],
-                                                           self.sides_x[i], self.sides_z[i], self.y_axis_rotation[i])
-            patch = PolygonPatch(rotated_box, facecolor='#6699cc', edgecolor='#6699cc', alpha=1.0, zorder=2)
+            rotated_box = WorkspaceParams._get_box_polygon(
+                self.centers_position_x[i],
+                self.centers_position_z[i],
+                self.sides_x[i],
+                self.sides_z[i],
+                self.y_axis_rotation[i],
+            )
+            patch = PolygonPatch(
+                rotated_box,
+                facecolor="#6699cc",
+                edgecolor="#6699cc",
+                alpha=1.0,
+                zorder=2,
+            )
             ax.add_patch(patch)
 
         def plot_path(path, path_color):
             xs = [p[0] for p in path]
             ys = [p[1] for p in path]
-            ax.plot(xs, ys, '.-', color=path_color)
+            ax.plot(xs, ys, ".-", color=path_color)
 
         if trajectory is not None:
-            plot_path(trajectory, 'red')
+            plot_path(trajectory, "red")
 
         if reference_trajectory is not None:
-            plot_path(reference_trajectory, 'green')
+            plot_path(reference_trajectory, "green")
 
         if starting_pose is not None:
-            plot_path(starting_pose, 'cyan')
+            plot_path(starting_pose, "cyan")
 
         if trajectory_end_pose is not None:
-            plot_path(trajectory_end_pose, 'magenta')
+            plot_path(trajectory_end_pose, "magenta")
 
         if reference_end_pose is not None:
-            plot_path(reference_end_pose, 'black')
+            plot_path(reference_end_pose, "black")
 
         # print according to bounding box
         # x_range = [-int(0.5), int(self.outerbox_length)]
@@ -87,27 +104,40 @@ class WorkspaceParams:
         ax.set_aspect(1)
         return fig
 
-    def print_image_many_trajectories(self, ax, other_trajectories, reference_trajectory=None):
+    def print_image_many_trajectories(
+        self, ax, other_trajectories, reference_trajectory=None
+    ):
         # fig = pyplot.figure(1, dpi=90)
         # ax = fig.add_subplot(111)
 
         # plot obstacles
         for i in range(self.number_of_obstacles):
-            rotated_box = WorkspaceParams._get_box_polygon(self.centers_position_x[i], self.centers_position_z[i],
-                                                           self.sides_x[i], self.sides_z[i], self.y_axis_rotation[i])
-            patch = PolygonPatch(rotated_box, facecolor='#6699cc', edgecolor='#6699cc', alpha=1.0, zorder=2)
+            rotated_box = WorkspaceParams._get_box_polygon(
+                self.centers_position_x[i],
+                self.centers_position_z[i],
+                self.sides_x[i],
+                self.sides_z[i],
+                self.y_axis_rotation[i],
+            )
+            patch = PolygonPatch(
+                rotated_box,
+                facecolor="#6699cc",
+                edgecolor="#6699cc",
+                alpha=1.0,
+                zorder=2,
+            )
             ax.add_patch(patch)
 
         def plot_path(path, path_color):
             xs = [p[0] for p in path]
             ys = [p[1] for p in path]
-            ax.plot(xs, ys, '.-', color=path_color)
+            ax.plot(xs, ys, ".-", color=path_color)
 
         for trajectory in other_trajectories:
-            plot_path(trajectory, 'red')
+            plot_path(trajectory, "red")
 
         if reference_trajectory is not None:
-            plot_path(reference_trajectory, 'green')
+            plot_path(reference_trajectory, "green")
 
         # print according to bounding box
         # x_range = [-int(0.5), int(self.outerbox_length)]
@@ -139,10 +169,10 @@ class WorkspaceParams:
 
     @staticmethod
     def _remove_transparency(im, bg_colour=(255, 255, 255)):
-        if im.mode in ('RGBA', 'LA') or (im.mode == 'P' and 'transparency' in im.info):
+        if im.mode in ("RGBA", "LA") or (im.mode == "P" and "transparency" in im.info):
 
             # Need to convert to RGBA if LA format due to a bug in PIL
-            alpha = im.convert('RGBA').split()[-1]
+            alpha = im.convert("RGBA").split()[-1]
 
             # Create a new background image of our matt color.
             # Must be RGBA because paste requires both images have the same format
@@ -157,7 +187,7 @@ class WorkspaceParams:
     def get_image_as_numpy(self):
         f = self.print_image()
         im = WorkspaceParams._figure_to_image(f)
-        im = WorkspaceParams._remove_transparency(im).convert('L')
+        im = WorkspaceParams._remove_transparency(im).convert("L")
         width = im.width / 16
         height = im.height / 16
         im.thumbnail((width, height), Image.ANTIALIAS)
@@ -174,12 +204,23 @@ class WorkspaceGenerator:
     rightmost_position = np.array([0.355, 0.078])
     rightmost_position_centered = rightmost_position - center_offset
     stretched_length = np.linalg.norm(rightmost_position_centered)
-    rightmost_position_centered_direction = rightmost_position_centered / stretched_length
+    rightmost_position_centered_direction = (
+        rightmost_position_centered / stretched_length
+    )
     min_angle = 0.0
     max_angle = np.pi
 
-    def __init__(self, print_info=True, min_obstacles=1, max_obstacles=3, min_center=0.2, max_center=0.3,
-                 min_side=0.01, max_side=0.1, obstacle_count_probabilities=None):
+    def __init__(
+        self,
+        print_info=True,
+        min_obstacles=1,
+        max_obstacles=3,
+        min_center=0.2,
+        max_center=0.3,
+        min_side=0.01,
+        max_side=0.1,
+        obstacle_count_probabilities=None,
+    ):
         # should print parameters?
         self.print_info = print_info
         # parameters that control the generation random process
@@ -200,13 +241,13 @@ class WorkspaceGenerator:
         center_distance = uniform(self.min_center, self.max_center)
         x_side = uniform(self.min_side, self.max_side)
         z_side = uniform(self.min_side, self.max_side)
-        y_axis_rotation = uniform(0.0, np.pi/2.0)
+        y_axis_rotation = uniform(0.0, np.pi / 2.0)
         return {
-            'ray_angle': ray_angle,
-            'center_distance': center_distance,
-            'x_side': x_side,
-            'z_side': z_side,
-            'y_axis_rotation': y_axis_rotation
+            "ray_angle": ray_angle,
+            "center_distance": center_distance,
+            "x_side": x_side,
+            "z_side": z_side,
+            "y_axis_rotation": y_axis_rotation,
         }
 
     @staticmethod
@@ -221,17 +262,31 @@ class WorkspaceGenerator:
         for k in description:
             self._print_variable(k, description[k])
         # first scale the rightmost position direction to be center_distance from the origin
-        scaled_rightmost = WorkspaceGenerator.rightmost_position_centered_direction * description['center_distance']
+        scaled_rightmost = (
+            WorkspaceGenerator.rightmost_position_centered_direction
+            * description["center_distance"]
+        )
         scaled_rightmost.resize((2, 1))
         # next, rotate it about the y axis
-        ray_angle = description['ray_angle']
-        rotation_matrix = np.matrix([[np.cos(ray_angle), -np.sin(ray_angle)], [np.sin(ray_angle), np.cos(ray_angle)]])
+        ray_angle = description["ray_angle"]
+        rotation_matrix = np.matrix(
+            [
+                [np.cos(ray_angle), -np.sin(ray_angle)],
+                [np.sin(ray_angle), np.cos(ray_angle)],
+            ]
+        )
         rotated_center = rotation_matrix * scaled_rightmost
         rotated_center = rotated_center.squeeze()
         final_center = rotated_center + WorkspaceGenerator.center_offset
         final_center.resize((2,))
-        self._print_variable('final_center', final_center)
-        return final_center, [description['x_side'], description['z_side']], description['y_axis_rotation'], ray_angle, description['center_distance']
+        self._print_variable("final_center", final_center)
+        return (
+            final_center,
+            [description["x_side"], description["z_side"]],
+            description["y_axis_rotation"],
+            ray_angle,
+            description["center_distance"],
+        )
 
     def generate_workspace(self):
         result = WorkspaceParams()
@@ -244,12 +299,18 @@ class WorkspaceGenerator:
                 probabilities.append(self.obstacle_count_probabilities[c])
             number_of_obstacles = np.random.choice(count, p=probabilities)
         result.number_of_obstacles = number_of_obstacles
-        self._print_variable('number_of_obstacles', number_of_obstacles)
+        self._print_variable("number_of_obstacles", number_of_obstacles)
         for i in range(number_of_obstacles):
-            self._print_variable('obstacle index', i)
+            self._print_variable("obstacle index", i)
             # description = self._fixed_obstacle_parameters(i, number_of_obstacles)
             description = self._randomize_obstacle_parameters()
-            center, sides, y_axis_rotation, ray_angle, center_distance = self._generate_obstacle(description)
+            (
+                center,
+                sides,
+                y_axis_rotation,
+                ray_angle,
+                center_distance,
+            ) = self._generate_obstacle(description)
             result.centers_position_x.append(center[0])
             result.centers_position_z.append(center[1])
             result.sides_x.append(sides[0])
@@ -259,7 +320,10 @@ class WorkspaceGenerator:
         return result
 
     def rays_to_slices(self, rays):
-        slices_bounds = [WorkspaceGenerator.min_angle, WorkspaceGenerator.max_angle] + rays
+        slices_bounds = [
+            WorkspaceGenerator.min_angle,
+            WorkspaceGenerator.max_angle,
+        ] + rays
         slices_bounds.sort()
         return slices_bounds
 
@@ -288,10 +352,10 @@ class TrajectoryGenerator:
     #     return self.environment.plan(start_joints, goal_joints, max_planner_iterations)
     def plan_start_goal(self, slices, max_planner_iterations):
         start_joints, start_slice = self._get_valid_joints(slices, None)
-        self._print_variable('start_slice_index', start_slice)
+        self._print_variable("start_slice_index", start_slice)
         # get the joint position for the goal state while ignoring the start slice
         goal_joints, goal_slice = self._get_valid_joints(slices, start_slice)
-        self._print_variable('goal_slice_index', goal_slice)
+        self._print_variable("goal_slice_index", goal_slice)
         return self.environment.plan(start_joints, goal_joints, max_planner_iterations)
 
     def _print_variable(self, name, variable):
@@ -305,7 +369,11 @@ class TrajectoryGenerator:
                 joints = self.environment.get_random_joints({0: 0.0})
             target_pose = self.environment.get_target_pose(joints)
             target_angle = WorkspaceGenerator.center_to_ray_angle(target_pose)
-            target_slice = [i for i in range(len(slices)-1) if slices[i] <= target_angle <= slices[i+1]][0]
+            target_slice = [
+                i
+                for i in range(len(slices) - 1)
+                if slices[i] <= target_angle <= slices[i + 1]
+            ][0]
             if forbidden_slice is None or target_slice != forbidden_slice:
                 return joints, target_slice
 
@@ -323,8 +391,8 @@ class TrajectoryGenerator:
         # compute the upper bounds per slice
         upper_bounds = []
         reduce_bounds = 0.0
-        for i in range(len(slices_bounds)-1):
-            upper_bound = slices_bounds[i+1]
+        for i in range(len(slices_bounds) - 1):
+            upper_bound = slices_bounds[i + 1]
             if ignore_slice is not None:
                 if i == ignore_slice:
                     reduce_bounds = upper_bound - slices_bounds[i]

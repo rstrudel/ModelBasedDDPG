@@ -10,13 +10,15 @@ class OpenraveRLInterface:
     #     close_to_goal = 3
 
     def __init__(self, config):
-        self.action_step_size = config['openrave_rl']['action_step_size']
-        self.goal_sensitivity = config['openrave_rl']['goal_sensitivity']
-        self.keep_alive_penalty = config['openrave_rl']['keep_alive_penalty']
-        self.truncate_penalty = config['openrave_rl']['truncate_penalty']
+        self.action_step_size = config["openrave_rl"]["action_step_size"]
+        self.goal_sensitivity = config["openrave_rl"]["goal_sensitivity"]
+        self.keep_alive_penalty = config["openrave_rl"]["keep_alive_penalty"]
+        self.truncate_penalty = config["openrave_rl"]["truncate_penalty"]
 
         self.openrave_manager = OpenraveManager(
-            config['openrave_rl']['segment_validity_step'], PotentialPoint.from_config(config))
+            config["openrave_rl"]["segment_validity_step"],
+            PotentialPoint.from_config(config),
+        )
 
         self.current_joints = None
         self.goal_joints = None
@@ -36,9 +38,9 @@ class OpenraveRLInterface:
         # assert path is legal
         if verify_traj:
             step_size = self.action_step_size + 0.00001
-            for i in range(len(traj)-1):
-                step_i_size = np.linalg.norm(np.array(traj[i]) - np.array(traj[i+1]))
-                assert step_i_size < step_size, 'step_i_size {}'.format(step_i_size)
+            for i in range(len(traj) - 1):
+                step_i_size = np.linalg.norm(np.array(traj[i]) - np.array(traj[i + 1]))
+                assert step_i_size < step_size, "step_i_size {}".format(step_i_size)
         steps_required_for_motion_plan = len(traj)
         self.current_joints = np.array(start_joints)
         self.start_joints = np.array(start_joints)
@@ -59,11 +61,17 @@ class OpenraveRLInterface:
         start_goal_distance = np.linalg.norm(start - goal)
         for i in range(workspace_params.number_of_obstacles):
             obstacle = np.array(
-                [workspace_params.centers_position_x[i], workspace_params.centers_position_z[i]]
+                [
+                    workspace_params.centers_position_x[i],
+                    workspace_params.centers_position_z[i],
+                ]
             )
             start_obstacle_distance = np.linalg.norm(start - obstacle)
             goal_obstacle_distance = np.linalg.norm(goal - obstacle)
-            if start_obstacle_distance < start_goal_distance and goal_obstacle_distance < start_goal_distance:
+            if (
+                start_obstacle_distance < start_goal_distance
+                and goal_obstacle_distance < start_goal_distance
+            ):
                 return True
         # all tests failed
         return False
@@ -76,17 +84,24 @@ class OpenraveRLInterface:
 
         reward = 0.0
         if self.truncate_penalty > 0.0:
-            reward -= self.truncate_penalty * np.linalg.norm(next_joints_before_truncate - next_joints) / \
-                      self.action_step_size
+            reward -= (
+                self.truncate_penalty
+                * np.linalg.norm(next_joints_before_truncate - next_joints)
+                / self.action_step_size
+            )
 
         # if segment not valid return collision result
-        if not self.openrave_manager.check_segment_validity(self.current_joints, next_joints):
+        if not self.openrave_manager.check_segment_validity(
+            self.current_joints, next_joints
+        ):
             return self._get_step_result(next_joints, -1.0 + reward, True, 2)
         # if close enough to goal, return positive reward
         if self.is_below_goal_sensitivity(next_joints, self.goal_joints):
             return self._get_step_result(next_joints, 1.0 + reward, True, 3)
         # else, just a normal step...
-        return self._get_step_result(next_joints, -self.keep_alive_penalty + reward, False, 1)
+        return self._get_step_result(
+            next_joints, -self.keep_alive_penalty + reward, False, 1
+        )
 
     def _get_step_result(self, next_joints, reward, is_terminal, enum_res):
         if is_terminal:

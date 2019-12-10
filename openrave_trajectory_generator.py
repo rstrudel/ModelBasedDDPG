@@ -4,18 +4,27 @@ from potential_point import PotentialPoint
 
 
 class OpenraveTrajectoryGenerator:
-
     def __init__(self, config):
-        self.action_step_size = config['openrave_rl']['action_step_size']
-        self.goal_sensitivity = config['openrave_rl']['goal_sensitivity']
-        self.challenging_trajectories_only = config['openrave_planner']['challenging_trajectories_only']
-        self.planner_iterations_start = config['openrave_planner']['planner_iterations_start']
-        self.planner_iterations_increase = config['openrave_planner']['planner_iterations_increase']
-        self.planner_iterations_decrease = config['openrave_planner']['planner_iterations_decrease']
+        self.action_step_size = config["openrave_rl"]["action_step_size"]
+        self.goal_sensitivity = config["openrave_rl"]["goal_sensitivity"]
+        self.challenging_trajectories_only = config["openrave_planner"][
+            "challenging_trajectories_only"
+        ]
+        self.planner_iterations_start = config["openrave_planner"][
+            "planner_iterations_start"
+        ]
+        self.planner_iterations_increase = config["openrave_planner"][
+            "planner_iterations_increase"
+        ]
+        self.planner_iterations_decrease = config["openrave_planner"][
+            "planner_iterations_decrease"
+        ]
         self.max_planner_iterations = self.planner_iterations_start
 
         self.openrave_manager = OpenraveManager(
-            config['openrave_rl']['segment_validity_step'], PotentialPoint.from_config(config))
+            config["openrave_rl"]["segment_validity_step"],
+            PotentialPoint.from_config(config),
+        )
 
     def is_below_goal_sensitivity(self, start_joints, goal_joints):
         start_pose = self.openrave_manager.get_target_pose(start_joints)
@@ -36,9 +45,13 @@ class OpenraveTrajectoryGenerator:
         if not self._is_valid_region(start_pose, goal_pose):
             return None
         # trajectories that must cross an obstacle
-        if self.challenging_trajectories_only and not self._is_challenging(start_pose, goal_pose):
+        if self.challenging_trajectories_only and not self._is_challenging(
+            start_pose, goal_pose
+        ):
             return None
-        traj = self.openrave_manager.plan(start_joints, goal_joints, self.max_planner_iterations)
+        traj = self.openrave_manager.plan(
+            start_joints, goal_joints, self.max_planner_iterations
+        )
         return traj
 
     def find_random_trajectory(self):
@@ -48,7 +61,10 @@ class OpenraveTrajectoryGenerator:
             if traj is None:
                 # if failed to plan, give more power
                 self.max_planner_iterations += self.planner_iterations_increase
-            elif self.max_planner_iterations > self.planner_iterations_start + self.planner_iterations_decrease:
+            elif (
+                self.max_planner_iterations
+                > self.planner_iterations_start + self.planner_iterations_decrease
+            ):
                 # if plan was found, maybe we need less iterations
                 self.max_planner_iterations -= self.planner_iterations_decrease
                 return self.split_trajectory(traj, self.action_step_size)
@@ -67,11 +83,17 @@ class OpenraveTrajectoryGenerator:
         start_goal_distance = np.linalg.norm(start - goal)
         for i in range(workspace_params.number_of_obstacles):
             obstacle = np.array(
-                [workspace_params.centers_position_x[i], workspace_params.centers_position_z[i]]
+                [
+                    workspace_params.centers_position_x[i],
+                    workspace_params.centers_position_z[i],
+                ]
             )
             start_obstacle_distance = np.linalg.norm(start - obstacle)
             goal_obstacle_distance = np.linalg.norm(goal - obstacle)
-            if start_obstacle_distance < start_goal_distance and goal_obstacle_distance < start_goal_distance:
+            if (
+                start_obstacle_distance < start_goal_distance
+                and goal_obstacle_distance < start_goal_distance
+            ):
                 return True
         # all tests failed
         return False
