@@ -234,7 +234,7 @@ class WorkspaceGenerator:
 
     def _print_variable(self, name, variable):
         if self.print_info:
-            print name, variable
+            print(name, variable)
 
     def _randomize_obstacle_parameters(self):
         ray_angle = uniform(WorkspaceGenerator.min_angle, WorkspaceGenerator.max_angle)
@@ -360,7 +360,7 @@ class TrajectoryGenerator:
 
     def _print_variable(self, name, variable):
         if self.print_info:
-            print name, variable
+            print(name, variable)
 
     def _get_valid_joints(self, slices, forbidden_slice=None):
         while True:

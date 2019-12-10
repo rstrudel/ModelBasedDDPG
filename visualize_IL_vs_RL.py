@@ -58,7 +58,7 @@ def process_rl_files(data_dir, trajectory_limitation):
                 if not filename.endswith(".p"):
                     continue
                 source_file = os.path.join(global_step_dir, filename)
-                print "working on {}".format(source_file)
+                print("working on {}".format(source_file))
                 with open(source_file, "r") as f:
                     trajectory = pickle.load(f)
                 joints = trajectory[1]
@@ -86,7 +86,7 @@ def process_dir(data_dir, limit_files, target_point_tuple=(5, -0.02, 0.035)):
             if not filename.endswith(".path_pkl"):
                 continue
             source_file = os.path.join(data_dir, filename)
-            print "working on {}".format(source_file)
+            print("working on {}".format(source_file))
             with bz2.BZ2File(source_file, "r") as compressed_file:
                 all_trajectories = pickle.load(compressed_file)
                 for trajectory in all_trajectories:
@@ -156,4 +156,4 @@ def paint_transition(transitions, limitation, color):
 paint_transition(il_transitions, sphere_limitation, red_color)
 # paint_transition(rl_transitions, sphere_limitation, green_color)
 
-print "here"
+print("here")

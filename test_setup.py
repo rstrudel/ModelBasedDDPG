@@ -13,5 +13,5 @@ potential_points = PotentialPoint.from_config(config)
 openrave_manager = OpenraveManager(0.01, potential_points)
 random_joints = openrave_manager.get_random_joints()
 
-print "has gpu result {}".format(is_gpu)
-print "random joints result {}".format(random_joints)
+print("has gpu result {}".format(is_gpu))
+print("random joints result {}".format(random_joints))

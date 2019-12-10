@@ -30,8 +30,8 @@ with open(config_path, "r") as yml_file:
     config = yaml.load(yml_file)
     assert config["general"]["scenario"] == "vision"
     overload_config_by_scenario(config)
-    print ("------------ Config ------------")
-    print (yaml.dump(config))
+    print("------------ Config ------------")
+    print(yaml.dump(config))
 
 
 def get_queries():
@@ -143,7 +143,7 @@ def run_network():
 
 
 network_result = run_network()
-print network_result
+print(network_result)
 
 
 def run_motion_planner():
@@ -169,4 +169,4 @@ def run_motion_planner():
 
 
 planner_result = run_motion_planner()
-print planner_result
+print(planner_result)

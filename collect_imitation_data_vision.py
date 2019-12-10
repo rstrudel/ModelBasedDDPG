@@ -54,8 +54,8 @@ class VisionImitationDataCollector(DataCollector):
 config_path = os.path.join(os.getcwd(), "config/config.yml")
 with open(config_path, "r") as yml_file:
     config = yaml.load(yml_file)
-    print ("------------ Config ------------")
-    print (yaml.dump(config))
+    print("------------ Config ------------")
+    print(yaml.dump(config))
 
 config["openrave_planner"] = {
     "challenging_trajectories_only": True,
@@ -108,7 +108,7 @@ while collected < len(collection_queries):
     a = datetime.datetime.now()
     current_buffer = data_collector.generate_samples(samples_per_file)
     b = datetime.datetime.now()
-    print "data collection took: {}".format(b - a)
+    print("data collection took: {}".format(b - a))
 
     for t in current_buffer:
         workspace_id = t[0]
@@ -135,7 +135,7 @@ while collected < len(collection_queries):
         assert len(params_ids_to_tuples[workspace_id]) < samples_per_file
 
 bb = datetime.datetime.now()
-print "collection took: {}".format(bb - aa)
+print("collection took: {}".format(bb - aa))
 
 for workspace_id in params_ids_to_tuples:
     assert len(params_ids_to_tuples[workspace_id]) == 0

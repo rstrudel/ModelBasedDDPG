@@ -162,17 +162,17 @@ def get_steps():
 
     if os.path.isfile(cache_filepath):
         # loading from cache
-        print "loading valid positions from cache"
+        print("loading valid positions from cache")
         with bz2.BZ2File(cache_filepath, "r") as compressed_file:
             return pickle.load(compressed_file)
 
     # compute the steps
-    print "partitioning the space"
+    print("partitioning the space")
     all_steps = recursive_get_all_steps(0, [[0.0]])
-    print "validating steps"
+    print("validating steps")
     all_steps = [s for s in all_steps if openrave_manager.is_valid(s)]
     # save for later
-    print "saving valid positions for later"
+    print("saving valid positions for later")
     with bz2.BZ2File(cache_filepath, "w") as compressed_file:
         pickle.dump(all_steps, compressed_file)
 
@@ -188,19 +188,19 @@ def get_poses(all_validated_steps):
 
     if os.path.isfile(cache_filepath):
         # loading from cache
-        print "loading valid poses from cache"
+        print("loading valid poses from cache")
         with bz2.BZ2File(cache_filepath, "r") as compressed_file:
             return pickle.load(compressed_file)
 
     # compute the poses
-    print "calculating poses"
+    print("calculating poses")
     all_poses = []
     for j in all_validated_steps:
         poses = openrave_manager.get_potential_points_poses(j)
         poses = poses[openrave_manager.potential_points[-1].tuple]
         all_poses.append(poses)
     # save for later
-    print "saving valid poses for later"
+    print("saving valid poses for later")
     with bz2.BZ2File(cache_filepath, "w") as compressed_file:
         pickle.dump(all_poses, compressed_file)
 
@@ -216,19 +216,19 @@ def get_jacobians(all_validated_steps):
 
     if os.path.isfile(cache_filepath):
         # loading from cache
-        print "loading valid jacobians from cache"
+        print("loading valid jacobians from cache")
         with bz2.BZ2File(cache_filepath, "r") as compressed_file:
             return pickle.load(compressed_file)
 
     # compute the jacobians
-    print "calculating jacobians"
+    print("calculating jacobians")
     all_jacobians = []
     for j in all_validated_steps:
         jacobians = openrave_manager.get_potential_points_jacobians(j)
         jacobians = jacobians[openrave_manager.potential_points[-1].tuple]
         all_jacobians.append(jacobians)
     # save for later
-    print "saving valid jacobians for later"
+    print("saving valid jacobians for later")
     with bz2.BZ2File(cache_filepath, "w") as compressed_file:
         pickle.dump(all_jacobians, compressed_file)
 
@@ -237,7 +237,7 @@ def get_jacobians(all_validated_steps):
 
 # compute actions with jacobian
 def get_actions_to_score(all_valid_jacobians):
-    print "getting actions"
+    print("getting actions")
     actions = np.array(
         [np.matmul(j, pose_action_direction) for j in all_valid_jacobians]
     )
@@ -256,7 +256,7 @@ robot_actions = get_actions_to_score(robot_jacobians)
 pre_trained_reward = PreTrainedReward(reward_model_name, config)
 
 # query reward model
-print "computing reward predictions"
+print("computing reward predictions")
 with tf.Session(
     config=tf.ConfigProto(
         gpu_options=tf.GPUOptions(
@@ -318,13 +318,15 @@ with tf.Session(
         elif s == 2 and r < 0.8:
             close_to_goal_bad_value_count += 1
 
-    print "bad values: free {} of {}, collision {} of {}, close to goal {} of {}".format(
-        free_bad_value_count,
-        len([s for s in all_status_predictions_argmax if s == 0]),
-        collision_bad_value_count,
-        len([s for s in all_status_predictions_argmax if s == 1]),
-        close_to_goal_bad_value_count,
-        len([s for s in all_status_predictions_argmax if s == 2]),
+    print(
+        "bad values: free {} of {}, collision {} of {}, close to goal {} of {}".format(
+            free_bad_value_count,
+            len([s for s in all_status_predictions_argmax if s == 0]),
+            collision_bad_value_count,
+            len([s for s in all_status_predictions_argmax if s == 1]),
+            close_to_goal_bad_value_count,
+            len([s for s in all_status_predictions_argmax if s == 2]),
+        )
     )
 
     reward_spheres = []
@@ -375,4 +377,4 @@ with tf.Session(
         )  # between red and green
 
 
-print "done"
+print("done")

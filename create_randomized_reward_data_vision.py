@@ -34,7 +34,7 @@ def write_chunk(entire_buffer, file_index):
 
 
 def write_to_log(message):
-    print message
+    print(message)
     log_file.write("{}{}".format(message, os.linesep))
     log_file.flush()
 
@@ -65,8 +65,10 @@ for dirpath, dirnames, filenames in os.walk(source_dir):
             data = write_chunk(data, output_file_index)
             output_file_index += 1
         input_file_index += 1
-        print "done with {}. input files processed {} output files produced {}".format(
-            filename, input_file_index, output_file_index
+        print(
+            "done with {}. input files processed {} output files produced {}".format(
+                filename, input_file_index, output_file_index
+            )
         )
 
 while len(data) > 0:
@@ -81,7 +83,7 @@ while len(data) > 0:
         )
     data = write_chunk(data, output_file_index)
     output_file_index += 1
-    print "writing leftover data. output files produced {}".format(output_file_index)
+    print("writing leftover data. output files produced {}".format(output_file_index))
 
 for workspace_serial in workspace_serial_to_count:
     write_to_log(
@@ -103,4 +105,4 @@ write_to_log(
     )
 )
 log_file.close()
-print "done"
+print("done")

@@ -10,7 +10,7 @@ def print_model_stats(pre_trained_reward_network, test_batch_size, sess):
     test = load_data_from(
         os.path.join("supervised_data", "test"), max_read=10 * test_batch_size
     )
-    print len(test)
+    print(len(test))
 
     # partition to train and test
     random.shuffle(test)
@@ -38,12 +38,14 @@ def print_model_stats(pre_trained_reward_network, test_batch_size, sess):
     ) = compute_stats_per_class(
         test_status, test_rewards, status_prediction, reward_prediction
     )
-    print "before loading weights"
-    print "goal mean_error {} max_error {} accuracy {}".format(*goal_rewards_stats)
-    print "collision mean_error {} max_error {} accuracy {}".format(
-        *collision_rewards_stats
+    print("before loading weights")
+    print("goal mean_error {} max_error {} accuracy {}".format(*goal_rewards_stats))
+    print(
+        "collision mean_error {} max_error {} accuracy {}".format(
+            *collision_rewards_stats
+        )
     )
-    print "other mean_error {} max_error {} accuracy {}".format(*other_rewards_stats)
+    print("other mean_error {} max_error {} accuracy {}".format(*other_rewards_stats))
 
     # load weights
     pre_trained_reward_network.load_weights(sess)
@@ -65,12 +67,14 @@ def print_model_stats(pre_trained_reward_network, test_batch_size, sess):
     ) = compute_stats_per_class(
         test_status, test_rewards, status_prediction, reward_prediction
     )
-    print "after loading weights"
-    print "goal mean_error {} max_error {} accuracy {}".format(*goal_rewards_stats)
-    print "collision mean_error {} max_error {} accuracy {}".format(
-        *collision_rewards_stats
+    print("after loading weights")
+    print("goal mean_error {} max_error {} accuracy {}".format(*goal_rewards_stats))
+    print(
+        "collision mean_error {} max_error {} accuracy {}".format(
+            *collision_rewards_stats
+        )
     )
-    print "other mean_error {} max_error {} accuracy {}".format(*other_rewards_stats)
+    print("other mean_error {} max_error {} accuracy {}".format(*other_rewards_stats))
 
 
 if __name__ == "__main__":
@@ -84,8 +88,8 @@ if __name__ == "__main__":
     config_path = os.path.join(os.getcwd(), "config/reward_config.yml")
     with open(config_path, "r") as yml_file:
         config = yaml.load(yml_file)
-        print ("------------ Config ------------")
-        print (yaml.dump(config))
+        print("------------ Config ------------")
+        print(yaml.dump(config))
 
     test_batch_size = config["model"]["batch_size"] * 10
 

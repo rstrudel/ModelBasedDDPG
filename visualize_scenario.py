@@ -33,4 +33,4 @@ else:
 openrave_manager.set_params(params_file_path)
 openrave_manager.get_initialized_viewer()
 
-print "here"
+print("here")

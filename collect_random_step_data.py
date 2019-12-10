@@ -67,15 +67,15 @@ def print_status_dist(current_buffer):
     total = len(status)
     for i in range(1, 4):
         count = sum([s == i for s in status])
-        print "{}: {} ({})".format(i, count, float(count) / total)
+        print("{}: {} ({})".format(i, count, float(count) / total))
 
 
 # read the config
 config_path = os.path.join(os.getcwd(), "config/config.yml")
 with open(config_path, "r") as yml_file:
     config = yaml.load(yml_file)
-    print ("------------ Config ------------")
-    print (yaml.dump(config))
+    print("------------ Config ------------")
+    print(yaml.dump(config))
 
 # number_of_samples = 30
 # samples_per_file = 10
@@ -103,7 +103,7 @@ while collected < number_of_samples:
     a = datetime.datetime.now()
     current_buffer = data_collector.generate_samples(samples_per_file)
     b = datetime.datetime.now()
-    print "data collection took: {}".format(b - a)
+    print("data collection took: {}".format(b - a))
     print_status_dist(current_buffer)
     dump_path = os.path.join(results_dir, "temp_data_{}.pkl".format(collected))
     compressed_file = bz2.BZ2File(dump_path, "w")

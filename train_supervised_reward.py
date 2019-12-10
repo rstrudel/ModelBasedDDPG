@@ -107,17 +107,17 @@ class RewardDataLoader:
 
     @staticmethod
     def _create_cache(data_dir, cache_dir):
-        print "creating cache for {} in {}".format(data_dir, cache_dir)
+        print("creating cache for {} in {}".format(data_dir, cache_dir))
         os.makedirs(cache_dir)
         files = [f for f in os.listdir(data_dir) if f.endswith(".pkl")]
         for f in files:
             destination_file = os.path.join(cache_dir, f)
-            print "caching {}".format(f)
+            print("caching {}".format(f))
             with bz2.BZ2File(os.path.join(data_dir, f), "r") as compressed_file:
                 data = pickle.load(compressed_file)
                 with open(destination_file, "w") as cache_file:
                     pickle.dump(data, cache_file)
-        print "done creating cache for {} in {}".format(data_dir, cache_dir)
+        print("done creating cache for {} in {}".format(data_dir, cache_dir))
 
     def __iter__(self):
         random.shuffle(self.files)
@@ -192,13 +192,15 @@ class Oversampler:
         goal_count = len(self.all_goals)
         all_count = free_count + collision_count + goal_count
 
-        print "data dir: {}".format(self.data_dir)
-        print "free: {} ({})".format(free_count, float(free_count) / all_count)
-        print "collision: {} ({})".format(
-            collision_count, float(collision_count) / all_count
+        print("data dir: {}".format(self.data_dir))
+        print("free: {} ({})".format(free_count, float(free_count) / all_count))
+        print(
+            "collision: {} ({})".format(
+                collision_count, float(collision_count) / all_count
+            )
         )
-        print "goal: {} ({})".format(goal_count, float(goal_count) / all_count)
-        print ""
+        print("goal: {} ({})".format(goal_count, float(goal_count) / all_count))
+        print("")
 
     @staticmethod
     def _load_all(files_iterator):
@@ -233,8 +235,8 @@ model_name = datetime.datetime.fromtimestamp(time.time()).strftime("%Y_%m_%d_%H_
 config_path = os.path.join(os.getcwd(), "config/reward_config.yml")
 with open(config_path, "r") as yml_file:
     config = yaml.load(yml_file)
-    print ("------------ Config ------------")
-    print (yaml.dump(config))
+    print("------------ Config ------------")
+    print(yaml.dump(config))
 
 
 epochs = config["general"]["epochs"]
@@ -505,8 +507,10 @@ with tf.Session(
                     os.path.join(saver_dir, "reward"),
                     global_step=current_global_step,
                 )
-        print "done epoch {} of {}, global step {}".format(
-            epoch, epochs, current_global_step
+        print(
+            "done epoch {} of {}, global step {}".format(
+                epoch, epochs, current_global_step
+            )
         )
 
 train.stop()

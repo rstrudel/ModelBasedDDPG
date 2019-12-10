@@ -40,8 +40,8 @@ class ImitationDataCollector(DataCollector):
 config_path = os.path.join(os.getcwd(), "config/config.yml")
 with open(config_path, "r") as yml_file:
     config = yaml.load(yml_file)
-    print ("------------ Config ------------")
-    print (yaml.dump(config))
+    print("------------ Config ------------")
+    print(yaml.dump(config))
 
 config["openrave_planner"] = {
     "challenging_trajectories_only": True,
@@ -76,7 +76,7 @@ while collected < number_of_trajectories:
     a = datetime.datetime.now()
     current_buffer = data_collector.generate_samples(trajectories_per_file)
     b = datetime.datetime.now()
-    print "data collection took: {}".format(b - a)
+    print("data collection took: {}".format(b - a))
     dump_path = os.path.join(results_dir, "temp_data_{}.path_pkl".format(collected))
     compressed_file = bz2.BZ2File(dump_path, "w")
     pickle.dump(current_buffer, compressed_file)

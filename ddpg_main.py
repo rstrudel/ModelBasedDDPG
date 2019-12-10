@@ -168,9 +168,9 @@ def run_for_config(config, print_messages):
         min_label = np.min(q_label)
         limit = 1.0 / (1.0 - gamma)
         if max_label > limit:
-            print "out of range max label: {} limit: {}".format(max_label, limit)
+            print("out of range max label: {} limit: {}".format(max_label, limit))
         if min_label < -limit:
-            print "out of range min label: {} limit: {}".format(min_label, limit)
+            print("out of range min label: {} limit: {}".format(min_label, limit))
 
         # # step to use for debug:
         # network.debug_all(current_joints, workspace_image, goal_pose, goal_joints, action, q_label, sess)
@@ -205,16 +205,20 @@ def run_for_config(config, print_messages):
     ):
         if not print_messages:
             return
-        print "{}: {}: finished: {}, successful: {} ({}), collision: {} ({}), max length: {} ({})".format(
-            datetime.datetime.fromtimestamp(time.time()).strftime("%Y-%m-%d %H:%M:%S"),
-            prefix,
-            episodes,
-            successful_episodes,
-            float(successful_episodes) / episodes,
-            collision_episodes,
-            float(collision_episodes) / episodes,
-            max_len_episodes,
-            float(max_len_episodes) / episodes,
+        print(
+            "{}: {}: finished: {}, successful: {} ({}), collision: {} ({}), max length: {} ({})".format(
+                datetime.datetime.fromtimestamp(time.time()).strftime(
+                    "%Y-%m-%d %H:%M:%S"
+                ),
+                prefix,
+                episodes,
+                successful_episodes,
+                float(successful_episodes) / episodes,
+                collision_episodes,
+                float(collision_episodes) / episodes,
+                max_len_episodes,
+                float(max_len_episodes) / episodes,
+            )
         )
 
     def process_example_trajectory(
@@ -271,7 +275,7 @@ def run_for_config(config, print_messages):
                 test_collision_episodes,
                 test_max_len_episodes,
             )
-            print ("test mean total reward {}".format(test_mean_reward))
+            print("test mean total reward {}".format(test_mean_reward))
         summaries_collector.write_test_episode_summaries(
             sess,
             global_step,
@@ -294,9 +298,11 @@ def run_for_config(config, print_messages):
         rate = test_successful_episodes / float(test_episodes)
         if best_model_test_success_rate < rate:
             if print_messages:
-                print "new best model found at step {}".format(global_step)
-                print "old success rate {} new success rate {}".format(
-                    best_model_test_success_rate, rate
+                print("new best model found at step {}".format(global_step))
+                print(
+                    "old success rate {} new success rate {}".format(
+                        best_model_test_success_rate, rate
+                    )
                 )
             is_best = True
             best_model_global_step = global_step
@@ -304,7 +310,7 @@ def run_for_config(config, print_messages):
         else:
             is_best = False
             if print_messages:
-                print "best model still at step {}".format(best_model_global_step)
+                print("best model still at step {}".format(best_model_global_step))
         return is_best, best_model_global_step, best_model_test_success_rate
 
     def do_end_of_run_validation(sess):
@@ -330,7 +336,7 @@ def run_for_config(config, print_messages):
                 test_collision_episodes,
                 test_max_len_episodes,
             )
-            print (
+            print(
                 "validation (best model) mean total reward {}".format(test_mean_reward)
             )
         test_results.append(
@@ -345,7 +351,7 @@ def run_for_config(config, print_messages):
         )
         # see if best
         rate = test_successful_episodes / float(test_episodes)
-        print "final success rate is {}".format(rate)
+        print("final success rate is {}".format(rate))
         return rate
 
     allowed_batch_episode_editor = (
@@ -457,9 +463,9 @@ def run_for_config(config, print_messages):
                     successful_episodes += 1
 
             b = datetime.datetime.now()
-            print "data collection took: {}".format(b - a)
-            print "find trajectory took: {}".format(total_find_trajectory_time)
-            print "rollout time took: {}".format(total_rollout_time)
+            print("data collection took: {}".format(b - a))
+            print("find trajectory took: {}".format(total_find_trajectory_time))
+            print("rollout time took: {}".format(total_rollout_time))
             print_state(
                 "train",
                 episodes,
@@ -487,7 +493,7 @@ def run_for_config(config, print_messages):
                         )
                     global_step += 1
                 b = datetime.datetime.now()
-                print "update took: {}".format(b - a)
+                print("update took: {}".format(b - a))
 
             # test if needed
             if update_index % config["test"]["test_every_cycles"] == 0:
@@ -506,8 +512,10 @@ def run_for_config(config, print_messages):
                 )
             # see if max score reached (even if validation is not 100%, there will no longer be any model updates...)
             if best_model_test_success_rate > 0.99999:
-                print "stoping run: best test success rate reached {}".format(
-                    best_model_test_success_rate
+                print(
+                    "stoping run: best test success rate reached {}".format(
+                        best_model_test_success_rate
+                    )
                 )
                 break
 
@@ -526,7 +534,7 @@ def run_for_config(config, print_messages):
     last_message = "best model stats at step {} has success rate of {} and validation success rate of {}".format(
         best_model_global_step, best_model_test_success_rate, validation_rate
     )
-    print last_message
+    print(last_message)
 
     with open(os.path.join(completed_trajectories_dir, "final_status.txt"), "w") as f:
         f.write(last_message)
@@ -569,7 +577,7 @@ if __name__ == "__main__":
     with open(config_path, "r") as yml_file:
         config = yaml.load(yml_file)
         overload_config_by_scenario(config)
-        print ("------------ Config ------------")
-        print (yaml.dump(config))
+        print("------------ Config ------------")
+        print(yaml.dump(config))
 
     run_for_config(config, print_messages=True)

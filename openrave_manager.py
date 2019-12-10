@@ -178,7 +178,7 @@ class OpenraveManager(object):
                 # plan found and validated!
                 return traj
             except Exception, e:
-                print str(e)
+                print(str(e))
                 return None
 
     def check_segment_validity(self, start_joints, end_joints):
@@ -413,38 +413,38 @@ if __name__ == "__main__":
     joints0 = [0.0] * 5
     res1 = m.get_potential_points_poses(joints0)
     res2 = m.get_links_poses(joints0)
-    print res1[potential_points[0].tuple] == res2[
-        m.links_names[potential_points[0].link]
-    ]
-    print res1[potential_points[1].tuple] == res2[
-        m.links_names[potential_points[1].link]
-    ]
+    print(
+        res1[potential_points[0].tuple] == res2[m.links_names[potential_points[0].link]]
+    )
+    print(
+        res1[potential_points[1].tuple] == res2[m.links_names[potential_points[1].link]]
+    )
 
     res3 = m.get_potential_points_jacobians(joints0)
     res4 = m.get_links_jacobians(joints0)
-    print res3[potential_points[0].tuple] == res4[
-        m.links_names[potential_points[0].link]
-    ]
-    print res3[potential_points[1].tuple] == res4[
-        m.links_names[potential_points[1].link]
-    ]
+    print(
+        res3[potential_points[0].tuple] == res4[m.links_names[potential_points[0].link]]
+    )
+    print(
+        res3[potential_points[1].tuple] == res4[m.links_names[potential_points[1].link]]
+    )
 
     joints0 = [0.0] * 5
     joints0[2] = np.pi / 4
     res1 = m.get_potential_points_poses(joints0)
     res2 = m.get_links_poses(joints0)
-    print res1[potential_points[0].tuple] == res2[
-        m.links_names[potential_points[0].link]
-    ]
-    print res1[potential_points[1].tuple] == res2[
-        m.links_names[potential_points[1].link]
-    ]
+    print(
+        res1[potential_points[0].tuple] == res2[m.links_names[potential_points[0].link]]
+    )
+    print(
+        res1[potential_points[1].tuple] == res2[m.links_names[potential_points[1].link]]
+    )
 
     res3 = m.get_potential_points_jacobians(joints0)
     res4 = m.get_links_jacobians(joints0)
-    print res3[potential_points[0].tuple] == res4[
-        m.links_names[potential_points[0].link]
-    ]
-    print res3[potential_points[1].tuple] == res4[
-        m.links_names[potential_points[1].link]
-    ]
+    print(
+        res3[potential_points[0].tuple] == res4[m.links_names[potential_points[0].link]]
+    )
+    print(
+        res3[potential_points[1].tuple] == res4[m.links_names[potential_points[1].link]]
+    )

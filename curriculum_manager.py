@@ -5,7 +5,7 @@ class CurriculumManager:
         self.enable = config["curriculum"]["enable"]
         if not self.enable:
             if self.print_messages:
-                print "curriculum disabled"
+                print("curriculum disabled")
             return
         self.current_length = config["curriculum"]["initial_length"]
         self.length_increments = config["curriculum"]["length_increments"]
@@ -30,9 +30,13 @@ class CurriculumManager:
     def _print_message(self, old_length, new_length, success_rate):
         if not self.print_messages:
             return
-        print "curriculum: success rate was {} greater than {} increasing length".format(
-            success_rate, self.success_rate_increase
+        print(
+            "curriculum: success rate was {} greater than {} increasing length".format(
+                success_rate, self.success_rate_increase
+            )
         )
-        print "curriculum: old length was {} new length is {}".format(
-            old_length, new_length
+        print(
+            "curriculum: old length was {} new length is {}".format(
+                old_length, new_length
+            )
         )

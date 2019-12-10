@@ -28,11 +28,11 @@ def write_data(force_write=False):
             target_file_path = os.path.join(
                 target_dir, "{}_{}.pkl".format(status, index_counters[status])
             )
-            print "writing status file for {} to {}".format(status, target_file_path)
+            print("writing status file for {} to {}".format(status, target_file_path))
             data_to_write = data_by_status[status][:file_max_size]
             with bz2.BZ2File(target_file_path, "w") as compressed_file:
                 pickle.dump(data_to_write, compressed_file)
-            print "done writing {}".format(target_file_path)
+            print("done writing {}".format(target_file_path))
             # advance the data to not write the same data twice
             data_by_status[status] = data_by_status[status][file_max_size:]
             index_counters[status] += 1
@@ -43,12 +43,12 @@ for dirpath, dirnames, filenames in os.walk(source_dir):
 
     for i, data_file in enumerate(data_files):
         full_path = os.path.join(source_dir, data_file)
-        print "starting {}: {}".format(i, full_path)
+        print("starting {}: {}".format(i, full_path))
         with bz2.BZ2File(full_path, "r") as compressed_file:
             content = pickle.load(compressed_file)
         for transition in content:
             data_by_status[transition[-1]].append(transition)
-        print "done reading {}: {}".format(i, full_path)
+        print("done reading {}: {}".format(i, full_path))
 
         write_data()
     write_data(True)

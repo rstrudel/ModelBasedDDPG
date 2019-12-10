@@ -75,15 +75,15 @@ def print_status_dist(current_buffer):
     total = len(status)
     for i in range(1, 4):
         count = sum([s == i for s in status])
-        print "{}: {} ({})".format(i, count, float(count) / total)
+        print("{}: {} ({})".format(i, count, float(count) / total))
 
 
 # read the config
 config_path = os.path.join(os.getcwd(), "config/config.yml")
 with open(config_path, "r") as yml_file:
     config = yaml.load(yml_file)
-    print ("------------ Config ------------")
-    print (yaml.dump(config))
+    print("------------ Config ------------")
+    print(yaml.dump(config))
 
 # scenario = 'vision'
 scenario = "vision_harder"
@@ -598,7 +598,7 @@ while collected < len(collection_queries):
     a = datetime.datetime.now()
     current_buffer = data_collector.generate_samples(samples_per_file)
     b = datetime.datetime.now()
-    print "data collection took: {}".format(b - a)
+    print("data collection took: {}".format(b - a))
     print_status_dist(current_buffer)
 
     for t in current_buffer:
@@ -626,7 +626,7 @@ while collected < len(collection_queries):
         assert len(params_ids_to_tuples[workspace_id]) < samples_per_file
 
 bb = datetime.datetime.now()
-print "collection took: {}".format(bb - aa)
+print("collection took: {}".format(bb - aa))
 
 for workspace_id in params_ids_to_tuples:
     assert len(params_ids_to_tuples[workspace_id]) == 0

@@ -22,8 +22,8 @@ model_name = datetime.datetime.fromtimestamp(time.time()).strftime("%Y_%m_%d_%H_
 config_path = os.path.join(os.getcwd(), "config/imitation_config.yml")
 with open(config_path, "r") as yml_file:
     config = yaml.load(yml_file)
-    print ("------------ Config ------------")
-    print (yaml.dump(config))
+    print("------------ Config ------------")
+    print(yaml.dump(config))
 
 
 epochs = config["general"]["epochs"]
@@ -41,27 +41,29 @@ test_batch_size = batch_size * 10
 
 
 def produce_transitions(data_dir, cache_dir):
-    print "producing transition data from original trajectories at {}".format(data_dir)
+    print("producing transition data from original trajectories at {}".format(data_dir))
     assert os.path.exists(data_dir)
 
     if os.path.exists(cache_dir):
-        print "found cache dir at {}, assuming all transitions are present there (if not delete the directory)".format(
-            cache_dir
+        print(
+            "found cache dir at {}, assuming all transitions are present there (if not delete the directory)".format(
+                cache_dir
+            )
         )
         return
 
-    print "cache not found, creating cache at: {}".format(cache_dir)
+    print("cache not found, creating cache at: {}".format(cache_dir))
     if not os.path.exists(cache_dir):
         os.makedirs(cache_dir)
     files = [file for file in os.listdir(data_dir) if file.endswith(".path_pkl")]
     assert len(files) > 0
     target_point = PotentialPoint.from_config(config)[-1]
     for file in files:
-        print "loading file {}".format(file)
+        print("loading file {}".format(file))
         with bz2.BZ2File(os.path.join(data_dir, file), "r") as compressed_file:
             paths = pickle.load(compressed_file)
 
-        print "asserting step sizes match"
+        print("asserting step sizes match")
         step_size = config["openrave_rl"]["action_step_size"] + 0.00001
         for (traj, _) in paths:
             for i in range(len(traj) - 1):
@@ -70,7 +72,7 @@ def produce_transitions(data_dir, cache_dir):
                     < step_size
                 )
 
-        print "creating transitions"
+        print("creating transitions")
         transitions = []
         for (traj, poses_trajectory) in paths:
             goal_joints = traj[-1]
@@ -82,36 +84,38 @@ def produce_transitions(data_dir, cache_dir):
                 transitions.append(transition)
 
         transition_file = os.path.join(cache_dir, file + ".transitions_cache")
-        print "writing transitions file {}".format(transition_file)
+        print("writing transitions file {}".format(transition_file))
         with open(transition_file, "w") as pickle_file:
             pickle.dump(transitions, pickle_file)
         # with bz2.BZ2File(transition_file, 'w') as compressed_file:
         #     pickle.dump(transitions, compressed_file)
 
-    print "cache created at {}".format(cache_dir)
+    print("cache created at {}".format(cache_dir))
 
 
 def produce_paths(data_dir, cache_dir):
-    print "producing paths data from original trajectories at {}".format(data_dir)
+    print("producing paths data from original trajectories at {}".format(data_dir))
     assert os.path.exists(data_dir)
 
     if os.path.exists(cache_dir):
-        print "found cache dir at {}, assuming all paths are present there (if not delete the directory)".format(
-            cache_dir
+        print(
+            "found cache dir at {}, assuming all paths are present there (if not delete the directory)".format(
+                cache_dir
+            )
         )
         return
 
-    print "cache not found, creating cache at: {}".format(cache_dir)
+    print("cache not found, creating cache at: {}".format(cache_dir))
     if not os.path.exists(cache_dir):
         os.makedirs(cache_dir)
     files = [file for file in os.listdir(data_dir) if file.endswith(".path_pkl")]
     assert len(files) > 0
     for file in files:
-        print "loading file {}".format(file)
+        print("loading file {}".format(file))
         with bz2.BZ2File(os.path.join(data_dir, file), "r") as compressed_file:
             paths = pickle.load(compressed_file)
 
-        print "asserting step sizes match"
+        print("asserting step sizes match")
         step_size = config["openrave_rl"]["action_step_size"] + 0.00001
         for (traj, _) in paths:
             for i in range(len(traj) - 1):
@@ -121,11 +125,11 @@ def produce_paths(data_dir, cache_dir):
                 )
 
         paths_file = os.path.join(cache_dir, file + ".paths_cache")
-        print "writing paths file {}".format(paths_file)
+        print("writing paths file {}".format(paths_file))
         with open(paths_file, "w") as pickle_file:
             pickle.dump(paths, pickle_file)
 
-    print "cache created at {}".format(cache_dir)
+    print("cache created at {}".format(cache_dir))
 
 
 train_original_dir = os.path.join("imitation_data", scenario, "train")
@@ -148,8 +152,10 @@ produce_paths(test_original_dir, test_paths_dir)
 
 
 def get_files(paths_dir, transitions_dir, max_files=None):
-    print "loading from paths {} transitions {}. max files {}".format(
-        paths_dir, transitions_dir, max_files
+    print(
+        "loading from paths {} transitions {}. max files {}".format(
+            paths_dir, transitions_dir, max_files
+        )
     )
     assert os.path.exists(paths_dir)
     assert os.path.exists(transitions_dir)
@@ -274,16 +280,18 @@ test_rate_summary = tf.summary.merge(
 def print_state(
     prefix, episodes, successful_episodes, collision_episodes, max_len_episodes
 ):
-    print "{}: {}: finished: {}, successful: {} ({}), collision: {} ({}), max length: {} ({})".format(
-        datetime.datetime.fromtimestamp(time.time()).strftime("%Y-%m-%d %H:%M:%S"),
-        prefix,
-        episodes,
-        successful_episodes,
-        float(successful_episodes) / episodes,
-        collision_episodes,
-        float(collision_episodes) / episodes,
-        max_len_episodes,
-        float(max_len_episodes) / episodes,
+    print(
+        "{}: {}: finished: {}, successful: {} ({}), collision: {} ({}), max length: {} ({})".format(
+            datetime.datetime.fromtimestamp(time.time()).strftime("%Y-%m-%d %H:%M:%S"),
+            prefix,
+            episodes,
+            successful_episodes,
+            float(successful_episodes) / episodes,
+            collision_episodes,
+            float(collision_episodes) / episodes,
+            max_len_episodes,
+            float(max_len_episodes) / episodes,
+        )
     )
 
 
@@ -456,7 +464,7 @@ with tf.Session(
     sess.run(tf.global_variables_initializer())
     for epoch in range(epochs):
         # run train for one epoch
-        print "starting epoch {}".format(epoch)
+        print("starting epoch {}".format(epoch))
         for raw_train_batch in train_batcher:
             train_batch = zip(*raw_train_batch)
             train_feed = {
@@ -507,7 +515,7 @@ with tf.Session(
             test_collision_episodes,
             test_max_len_episodes,
         )
-        print ("train episodes mean total reward {}".format(test_mean_reward))
+        print("train episodes mean total reward {}".format(test_mean_reward))
         test_summary_writer.add_summary(
             sess.run(
                 train_rate_summary,
@@ -538,7 +546,7 @@ with tf.Session(
             test_collision_episodes,
             test_max_len_episodes,
         )
-        print ("test episodes mean total reward {}".format(test_mean_reward))
+        print("test episodes mean total reward {}".format(test_mean_reward))
         test_summary_writer.add_summary(
             sess.run(
                 test_rate_summary,
@@ -567,14 +575,16 @@ with tf.Session(
             best_model_path = best_saver.save(
                 sess, os.path.join(saver_dir, "best"), global_step=global_step
             )
-            print "old best rate: {} new best rate: {}".format(best_success_rate, rate)
+            print("old best rate: {} new best rate: {}".format(best_success_rate, rate))
             best_success_rate = rate
             best_epoch = epoch
         else:
-            print "current rate is: {}, best model is still at epoch {} with rate: {}".format(
-                rate, best_epoch, best_success_rate
+            print(
+                "current rate is: {}, best model is still at epoch {} with rate: {}".format(
+                    rate, best_epoch, best_success_rate
+                )
             )
-        print "done epoch {} of {}".format(epoch, epochs)
+        print("done epoch {} of {}".format(epoch, epochs))
 
     # load best model, without training and save the test results
     best_saver.restore(sess, best_model_path)

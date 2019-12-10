@@ -125,7 +125,7 @@ class WorkerQueue(multiprocessing.Process):
                     trajectories_left + successful_trajectories_count
                     < self.trajectories_required_to_pass
                 ):
-                    print "no hope to get the required ratio"
+                    print("no hope to get the required ratio")
                     break
                 # try a trajectory
                 successful_trajectories_count += (
@@ -133,17 +133,17 @@ class WorkerQueue(multiprocessing.Process):
                 )
                 # if successful update the status
                 if successful_trajectories_count >= self.trajectories_required_to_pass:
-                    print "workspace found"
+                    print("workspace found")
                     save_path = os.path.join(
                         output_dir, "{}_workspace.pkl".format(workspace_id)
                     )
                     workspace_params.save(save_path)
                     return
             b = datetime.datetime.now()
-            print "trajectories tried {}".format(i)
-            print "success count {}".format(successful_trajectories_count)
-            print "time since start {}".format(b - a)
-            print ""
+            print("trajectories tried {}".format(i))
+            print("success count {}".format(successful_trajectories_count))
+            print("time since start {}".format(b - a))
+            print("")
 
     def run(self):
         while True:
@@ -199,9 +199,9 @@ for workspace_id in range(number_of_workspaces):
 for i in range(number_of_workspaces):
     workspace_id = results_queue.get()
     current_time = datetime.datetime.now()
-    print "workspace {} found".format(workspace_id)
-    print "time from start {}".format(current_time - global_start_time)
-    print ""
+    print("workspace {} found".format(workspace_id))
+    print("time from start {}".format(current_time - global_start_time))
+    print("")
 # close all workers
 for queue in workers_specific_queues:
     queue.put(None)

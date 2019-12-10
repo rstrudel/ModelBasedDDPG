@@ -615,11 +615,11 @@ class Network(object):
         sess.run([self.update_critic_target_params, self.update_actor_target_params])
 
     def _print(self, header, array):
-        print header
-        print "is nan? {}".format(np.isnan(array).any())
-        print "max {}".format(np.max(array))
-        print "min {}".format(np.min(array))
-        print ""
+        print(header)
+        print("is nan? {}".format(np.isnan(array).any()))
+        print("max {}".format(np.max(array)))
+        print("min {}".format(np.min(array)))
+        print("")
 
     def debug_all(
         self,
