@@ -50,11 +50,11 @@ config["openrave_planner"] = {
     "planner_iterations_decrease": 1,
 }
 
-# scenario = 'simple'
-scenario = "hard"
+scenario = "simple"
+# scenario = "hard"
 params_file = os.path.abspath(
     os.path.expanduser(
-        os.path.join("~/ModelBasedDDPG/scenario_params", scenario, "params.pkl")
+        os.path.join(os.getcwd(), "scenario_params", scenario, "params.pkl")
     )
 )
 
@@ -82,4 +82,5 @@ while collected < number_of_trajectories:
     pickle.dump(current_buffer, compressed_file)
     compressed_file.close()
     collected += len(current_buffer)
+    print("Collected {}/{}".format(collected, number_of_trajectories))
 data_collector.end()

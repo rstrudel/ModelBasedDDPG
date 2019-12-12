@@ -13,6 +13,7 @@ class OpenraveManager(object):
         # env_path = os.path.abspath(
         #     os.path.expanduser('~/ModelBasedDDPG/config/widowx_env.xml'))
         env_path = os.path.join(os.getcwd(), "data", "config", "widowx_env.xml")
+
         self.env = Environment()
         self.env.StopSimulation()
         self.env.Load(env_path)  # load a simple scene
@@ -177,7 +178,7 @@ class OpenraveManager(object):
                     return None
                 # plan found and validated!
                 return traj
-            except Exception, e:
+            except Exception as e:
                 print(str(e))
                 return None
 
